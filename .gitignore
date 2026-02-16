@@ -1,0 +1,8 @@
+# Compiled binaries
+server
+*.exe
+/cmd/server/server
+
+# Go build artifacts
+*.test
+*.out
