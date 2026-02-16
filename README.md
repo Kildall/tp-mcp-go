@@ -39,6 +39,14 @@ Add the following configuration to your MCP client settings:
 
 Replace `/path/to/server` with the absolute path to the built server executable.
 
+## Usage with Claude Code (Docker)
+
+```bash
+claude mcp add targetprocess -- docker run -i --rm -e TP_DOMAIN=your-domain.tpondemand.com -e TP_ACCESS_TOKEN=your-token ghcr.io/kildall/tp-mcp-go:latest
+```
+
+Replace `your-domain.tpondemand.com` and `your-token` with your actual values.
+
 ## Available Tools
 
 The server provides the following 10 tools for interacting with Target Process:
