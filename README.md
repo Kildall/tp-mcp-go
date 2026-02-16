@@ -100,4 +100,4 @@ tp-mcp-go/
 
 ## License
 
-This project is part of the Apptio Target Process MCP integration.
+This is a personal project with no affiliation with Apptio, Target Process, or any other third party.
