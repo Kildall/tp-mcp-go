@@ -43,9 +43,8 @@ func NewSearchTool(c client.Client) fxctx.Tool {
 						"description": "Filter by entity state name (string, e.g., 'Open', 'In Progress', 'Done'). Maps to EntityState.Name.",
 					},
 					"assignedUser": {
-						"type":        "string",
-						"description": "Filter by assigned user's email address (string, e.g., 'john@company.com'). Maps to AssignedUser.Email. " +
-							"This is NOT a login or username — it must be the user's email. " +
+						"description": "Filter by assigned user — pass a string for email (e.g., 'john@company.com') or a number for user ID (e.g., 789). " +
+							"String maps to AssignedUser.Email, number maps to AssignedUser.Id. " +
 							"To filter by login name, use the 'where' param with: AssignedUser.Login eq 'loginname'",
 					},
 					"project": {
@@ -153,7 +152,7 @@ func NewSearchTool(c client.Client) fxctx.Tool {
 				// Parse filters
 				req.Filters = query.SearchFilters{
 					Status:       getStringArg(args, "status"),
-					AssignedUser: getStringArg(args, "assignedUser"),
+					AssignedUser: getAnyArg(args, "assignedUser"),
 					Project:      getAnyArg(args, "project"),
 					Team:         getAnyArg(args, "team"),
 					Feature:      getAnyArg(args, "feature"),
