@@ -4,7 +4,7 @@ import "tp-mcp-go/internal/domain/entity"
 
 type SearchFilters struct {
 	Status       string
-	AssignedUser string
+	AssignedUser any // string (email) or int (ID)
 	Project      any // string (name) or int (ID)
 	Team         any // string (name) or int (ID)
 	Feature      any // string (name) or int (ID)

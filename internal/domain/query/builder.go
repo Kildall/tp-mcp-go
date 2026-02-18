@@ -11,9 +11,18 @@ func BuildWhereClause(filters SearchFilters, rawWhere string) string {
 		conditions = append(conditions, FormatStringCondition("EntityState.Name", "eq", filters.Status))
 	}
 
-	// AssignedUser
-	if filters.AssignedUser != "" {
-		conditions = append(conditions, FormatStringCondition("AssignedUser.Email", "eq", filters.AssignedUser))
+	// AssignedUser - string (email) or number (ID)
+	if filters.AssignedUser != nil {
+		switch v := filters.AssignedUser.(type) {
+		case string:
+			if v != "" {
+				conditions = append(conditions, FormatStringCondition("AssignedUser.Email", "eq", v))
+			}
+		case int:
+			conditions = append(conditions, FormatNumberCondition("AssignedUser.Id", "eq", v))
+		case float64:
+			conditions = append(conditions, FormatNumberCondition("AssignedUser.Id", "eq", int(v)))
+		}
 	}
 
 	// Project - string (name) or number (ID)
