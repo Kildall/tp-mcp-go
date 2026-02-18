@@ -443,3 +443,27 @@ func TestSearchToolOldStyleOrderByArrayIgnored(t *testing.T) {
 		t.Errorf("expected OrderByField to be empty when old-style orderBy array is passed, got %q", capturedReq.OrderByField)
 	}
 }
+
+func TestSearchToolWithAssignedUserID(t *testing.T) {
+	var capturedReq query.SearchRequest
+	mock := &testutil.MockClient{
+		SearchEntitiesFn: func(ctx context.Context, req query.SearchRequest) (*query.PaginatedResponse, error) {
+			capturedReq = req
+			return testutil.NewSearchResponse(1), nil
+		},
+	}
+
+	tool := NewSearchTool(mock)
+	result := tool.Callback(map[string]interface{}{
+		"type":         "UserStory",
+		"assignedUser": float64(789),
+	})
+
+	if result.IsError != nil && *result.IsError {
+		t.Fatal("expected success, got error")
+	}
+
+	if capturedReq.Filters.AssignedUser != float64(789) {
+		t.Errorf("expected assignedUser = float64(789), got %v", capturedReq.Filters.AssignedUser)
+	}
+}
