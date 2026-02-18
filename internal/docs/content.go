@@ -346,11 +346,11 @@ Effort ge 5
 
 ## Combining Filters
 
-Use 'and' and 'or' to combine multiple conditions:
+Use 'and' to combine multiple conditions:
 
 EntityState.Name eq 'Open' and AssignedUser.Id eq 123
-Priority.Name eq 'High' or Priority.Name eq 'Critical'
-Project.Id eq 100 and (EntityState.Name eq 'Open' or EntityState.Name eq 'In Progress')
+Priority.Name in ('High','Critical')
+Project.Id eq 100 and EntityState.Name in ('Open','In Progress')
 
 ## Null Checks
 
@@ -436,7 +436,7 @@ where="EntityState.Name eq 'Open' and ModifyDate gt '2026-02-01'"
 ### Tasks in Multiple Projects
 
 entity_type="Task"
-where="Project.Id eq 100 or Project.Id eq 101"
+where="Project.Id in (100,101)"
 
 ### Stories with Effort Range
 
