@@ -43,7 +43,8 @@ func apiErrorResult(apiErr *errors.APIError) *mcp.CallToolResult {
 	switch {
 	case apiErr.StatusCode == 400:
 		sb.WriteString("\n\nThis usually means the query syntax is invalid. Common issues:")
-		sb.WriteString("\n- Boolean values must NOT be quoted: use 'IsFinal eq true' not 'IsFinal eq \"true\"'")
+		sb.WriteString("\n- Boolean values must be single-quoted strings: EntityState.IsFinal eq 'true', EntityState.IsFinal eq 'false'")
+		sb.WriteString("\n- Use 'in' for multiple values: EntityState.Name in ('Open','In Progress') or Id in (1,2,3)")
 		sb.WriteString("\n- String values must be single-quoted: EntityState.Name eq 'Open'")
 		sb.WriteString("\n- Verify field names are valid for this entity type (use inspect_object tool)")
 		sb.WriteString("\n- Collection queries use .Any() syntax: Assignments.Any(GeneralUser.Id eq 123)")

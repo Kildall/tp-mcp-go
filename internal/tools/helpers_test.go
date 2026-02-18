@@ -198,7 +198,8 @@ func TestErrorResultWithAPIError(t *testing.T) {
 			expectContains: []string{
 				"TP API Error (HTTP 400)",
 				"Error during parameters parsing.",
-				"Boolean values must NOT be quoted",
+				"Boolean values must be single-quoted",
+			"Use 'in' for multiple values",
 				"Sorting: orderBy",
 				"orderByField",
 				"Request: GET",
