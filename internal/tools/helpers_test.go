@@ -199,7 +199,7 @@ func TestErrorResultWithAPIError(t *testing.T) {
 				"TP API Error (HTTP 400)",
 				"Error during parameters parsing.",
 				"Boolean values must be single-quoted",
-			"Use 'in' for multiple values",
+				"Use 'in' for multiple values",
 				"Sorting: orderBy",
 				"orderByField",
 				"Request: GET",
