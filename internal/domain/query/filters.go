@@ -5,9 +5,9 @@ import "tp-mcp-go/internal/domain/entity"
 type SearchFilters struct {
 	Status       string
 	AssignedUser string
-	Project      any    // string (name) or int (ID)
-	Team         any    // string (name) or int (ID)
-	Feature      any    // string (name) or int (ID)
+	Project      any // string (name) or int (ID)
+	Team         any // string (name) or int (ID)
+	Feature      any // string (name) or int (ID)
 	Priority     string
 	DateFrom     string
 	DateTo       string
@@ -15,10 +15,10 @@ type SearchFilters struct {
 }
 
 type SearchRequest struct {
-	EntityType entity.Type
-	Filters    SearchFilters
-	RawWhere   string
-	Include    []string
+	EntityType   entity.Type
+	Filters      SearchFilters
+	RawWhere     string
+	Include      []string
 	Take         int
 	OrderByField string
 	OrderByDesc  bool

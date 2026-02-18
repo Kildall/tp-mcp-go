@@ -33,7 +33,7 @@ func TestListComments_UsesOrderByDesc(t *testing.T) {
 	if strings.Contains(capturedURL, "orderBy=CreateDate+desc") {
 		t.Errorf("expected URL NOT to contain 'orderBy=CreateDate+desc', got: %s", capturedURL)
 	}
-	if strings.Contains(capturedURL, "orderBy=CreateDate%%20desc") {
+	if strings.Contains(capturedURL, "orderBy=CreateDate%20desc") {
 		t.Errorf("expected URL NOT to contain 'orderBy=CreateDate%%20desc', got: %s", capturedURL)
 	}
 	// Strip the "orderByDesc" occurrences and confirm no plain "orderBy=" remains
