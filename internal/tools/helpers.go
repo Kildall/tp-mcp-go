@@ -47,6 +47,7 @@ func apiErrorResult(apiErr *errors.APIError) *mcp.CallToolResult {
 		sb.WriteString("\n- String values must be single-quoted: EntityState.Name eq 'Open'")
 		sb.WriteString("\n- Verify field names are valid for this entity type (use inspect_object tool)")
 		sb.WriteString("\n- Collection queries use .Any() syntax: Assignments.Any(GeneralUser.Id eq 123)")
+		sb.WriteString("\n- Sorting: orderBy only accepts a field name (e.g., 'CreateDate'), not 'CreateDate desc' — use orderByField and orderByDirection parameters")
 	case apiErr.StatusCode == 401:
 		sb.WriteString("\n\nAuthentication failed. The access token may be invalid or expired.")
 	case apiErr.StatusCode == 403:

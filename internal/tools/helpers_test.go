@@ -199,6 +199,8 @@ func TestErrorResultWithAPIError(t *testing.T) {
 				"TP API Error (HTTP 400)",
 				"Error during parameters parsing.",
 				"Boolean values must NOT be quoted",
+				"Sorting: orderBy",
+				"orderByField",
 				"Request: GET",
 			},
 		},
