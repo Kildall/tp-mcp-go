@@ -279,3 +279,167 @@ func TestSearchToolWithCursor(t *testing.T) {
 		t.Error("expected filters to be empty when cursor is provided")
 	}
 }
+
+func TestSearchToolOrderByFieldAlone(t *testing.T) {
+	var capturedReq query.SearchRequest
+	mock := &testutil.MockClient{
+		SearchEntitiesFn: func(ctx context.Context, req query.SearchRequest) (*query.PaginatedResponse, error) {
+			capturedReq = req
+			return testutil.NewSearchResponse(1), nil
+		},
+	}
+
+	tool := NewSearchTool(mock)
+	result := tool.Callback(map[string]interface{}{
+		"type":         "UserStory",
+		"orderByField": "CreateDate",
+	})
+
+	if result.IsError != nil && *result.IsError {
+		t.Fatal("expected success, got error")
+	}
+
+	if capturedReq.OrderByField != "CreateDate" {
+		t.Errorf("expected OrderByField = CreateDate, got %q", capturedReq.OrderByField)
+	}
+
+	if capturedReq.OrderByDesc {
+		t.Error("expected OrderByDesc = false when no direction specified")
+	}
+}
+
+func TestSearchToolOrderByFieldWithDesc(t *testing.T) {
+	var capturedReq query.SearchRequest
+	mock := &testutil.MockClient{
+		SearchEntitiesFn: func(ctx context.Context, req query.SearchRequest) (*query.PaginatedResponse, error) {
+			capturedReq = req
+			return testutil.NewSearchResponse(1), nil
+		},
+	}
+
+	tool := NewSearchTool(mock)
+	result := tool.Callback(map[string]interface{}{
+		"type":             "UserStory",
+		"orderByField":     "Name",
+		"orderByDirection": "desc",
+	})
+
+	if result.IsError != nil && *result.IsError {
+		t.Fatal("expected success, got error")
+	}
+
+	if capturedReq.OrderByField != "Name" {
+		t.Errorf("expected OrderByField = Name, got %q", capturedReq.OrderByField)
+	}
+
+	if !capturedReq.OrderByDesc {
+		t.Error("expected OrderByDesc = true when direction is desc")
+	}
+}
+
+func TestSearchToolOrderByFieldWithAsc(t *testing.T) {
+	var capturedReq query.SearchRequest
+	mock := &testutil.MockClient{
+		SearchEntitiesFn: func(ctx context.Context, req query.SearchRequest) (*query.PaginatedResponse, error) {
+			capturedReq = req
+			return testutil.NewSearchResponse(1), nil
+		},
+	}
+
+	tool := NewSearchTool(mock)
+	result := tool.Callback(map[string]interface{}{
+		"type":             "UserStory",
+		"orderByField":     "Priority.Id",
+		"orderByDirection": "asc",
+	})
+
+	if result.IsError != nil && *result.IsError {
+		t.Fatal("expected success, got error")
+	}
+
+	if capturedReq.OrderByField != "Priority.Id" {
+		t.Errorf("expected OrderByField = Priority.Id, got %q", capturedReq.OrderByField)
+	}
+
+	if capturedReq.OrderByDesc {
+		t.Error("expected OrderByDesc = false when direction is asc")
+	}
+}
+
+func TestSearchToolOrderByDirectionWithoutField(t *testing.T) {
+	mock := &testutil.MockClient{}
+
+	tool := NewSearchTool(mock)
+	result := tool.Callback(map[string]interface{}{
+		"type":             "UserStory",
+		"orderByDirection": "desc",
+	})
+
+	if result.IsError == nil || !*result.IsError {
+		t.Fatal("expected error when orderByDirection is set without orderByField")
+	}
+
+	if len(result.Content) == 0 {
+		t.Fatal("expected content in error result")
+	}
+
+	textContent, ok := result.Content[0].(mcp.TextContent)
+	if !ok {
+		t.Fatalf("expected mcp.TextContent, got %T", result.Content[0])
+	}
+
+	if textContent.Text == "" {
+		t.Error("expected error message in text")
+	}
+}
+
+func TestSearchToolNoOrderByParams(t *testing.T) {
+	var capturedReq query.SearchRequest
+	mock := &testutil.MockClient{
+		SearchEntitiesFn: func(ctx context.Context, req query.SearchRequest) (*query.PaginatedResponse, error) {
+			capturedReq = req
+			return testutil.NewSearchResponse(1), nil
+		},
+	}
+
+	tool := NewSearchTool(mock)
+	result := tool.Callback(map[string]interface{}{
+		"type": "UserStory",
+	})
+
+	if result.IsError != nil && *result.IsError {
+		t.Fatal("expected success, got error")
+	}
+
+	if capturedReq.OrderByField != "" {
+		t.Errorf("expected OrderByField to be empty, got %q", capturedReq.OrderByField)
+	}
+
+	if capturedReq.OrderByDesc {
+		t.Error("expected OrderByDesc = false when no orderBy params provided")
+	}
+}
+
+func TestSearchToolOldStyleOrderByArrayIgnored(t *testing.T) {
+	var capturedReq query.SearchRequest
+	mock := &testutil.MockClient{
+		SearchEntitiesFn: func(ctx context.Context, req query.SearchRequest) (*query.PaginatedResponse, error) {
+			capturedReq = req
+			return testutil.NewSearchResponse(1), nil
+		},
+	}
+
+	tool := NewSearchTool(mock)
+	result := tool.Callback(map[string]interface{}{
+		"type":    "UserStory",
+		"orderBy": []interface{}{"CreateDate desc", "Name"},
+	})
+
+	if result.IsError != nil && *result.IsError {
+		t.Fatal("expected success, got error: old-style orderBy array should be silently ignored")
+	}
+
+	if capturedReq.OrderByField != "" {
+		t.Errorf("expected OrderByField to be empty when old-style orderBy array is passed, got %q", capturedReq.OrderByField)
+	}
+}
