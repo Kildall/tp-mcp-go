@@ -28,8 +28,9 @@ func (e *ValidationError) Error() string {
 // APIError is returned when the TP API returns a non-success response
 type APIError struct {
 	StatusCode int
-	Message    string
-	Context    string
+	Message    string // Parsed/clean error message
+	RawBody    string // Full response body (with token masked)
+	Context    string // Method + URL
 }
 
 func (e *APIError) Error() string {
@@ -37,6 +38,24 @@ func (e *APIError) Error() string {
 		return fmt.Sprintf("API error %d: %s (context: %s)", e.StatusCode, e.Message, e.Context)
 	}
 	return fmt.Sprintf("API error %d: %s", e.StatusCode, e.Message)
+}
+
+// ParseTPErrorBody extracts a human-readable message from a TP API error response.
+// The TP API returns XML error bodies like:
+//
+//	<Error><Status>BadRequest</Status><Message>Error during parameters parsing.</Message>...</Error>
+func ParseTPErrorBody(body string) string {
+	start := strings.Index(body, "<Message>")
+	end := strings.Index(body, "</Message>")
+	if start != -1 && end != -1 && end > start {
+		return body[start+len("<Message>") : end]
+	}
+	// If no XML message found, return body as-is (trimmed)
+	trimmed := strings.TrimSpace(body)
+	if trimmed == "" {
+		return "empty response"
+	}
+	return trimmed
 }
 
 // SSRFError is returned when URL validation fails

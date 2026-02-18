@@ -3,7 +3,10 @@ package tools
 import (
 	"encoding/json"
 	"errors"
+	"strings"
 	"testing"
+
+	tperrors "tp-mcp-go/internal/domain/errors"
 
 	"github.com/strowk/foxy-contexts/pkg/mcp"
 )
@@ -175,6 +178,85 @@ func TestErrorResult(t *testing.T) {
 
 	if content.Text != "Error: test error" {
 		t.Errorf("expected 'Error: test error', got %q", content.Text)
+	}
+}
+
+func TestErrorResultWithAPIError(t *testing.T) {
+	tests := []struct {
+		name           string
+		apiErr         *tperrors.APIError
+		expectContains []string
+	}{
+		{
+			name: "400 error includes query syntax hints",
+			apiErr: &tperrors.APIError{
+				StatusCode: 400,
+				Message:    "Error during parameters parsing.",
+				RawBody:    `<Error><Message>Error during parameters parsing.</Message></Error>`,
+				Context:    "GET https://example.com/api/v1/Requests?where=...",
+			},
+			expectContains: []string{
+				"TP API Error (HTTP 400)",
+				"Error during parameters parsing.",
+				"Boolean values must NOT be quoted",
+				"Request: GET",
+			},
+		},
+		{
+			name: "401 error includes auth hint",
+			apiErr: &tperrors.APIError{
+				StatusCode: 401,
+				Message:    "Unauthorized",
+			},
+			expectContains: []string{
+				"TP API Error (HTTP 401)",
+				"Authentication failed",
+			},
+		},
+		{
+			name: "404 error includes not found hint",
+			apiErr: &tperrors.APIError{
+				StatusCode: 404,
+				Message:    "not found",
+			},
+			expectContains: []string{
+				"TP API Error (HTTP 404)",
+				"Entity not found",
+			},
+		},
+		{
+			name: "500 error includes server error hint",
+			apiErr: &tperrors.APIError{
+				StatusCode: 500,
+				Message:    "Internal server error",
+			},
+			expectContains: []string{
+				"TP API Error (HTTP 500)",
+				"Server error on the TP side",
+				"try the request again",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := errorResult(tt.apiErr)
+
+			if result.IsError == nil || !*result.IsError {
+				t.Error("expected IsError to be true")
+			}
+
+			content, ok := result.Content[0].(mcp.TextContent)
+			if !ok {
+				t.Fatal("expected TextContent")
+			}
+
+			for _, expected := range tt.expectContains {
+				if !strings.Contains(content.Text, expected) {
+					t.Errorf("expected output to contain %q, got:\n%s", expected, content.Text)
+				}
+			}
+		})
 	}
 }
 

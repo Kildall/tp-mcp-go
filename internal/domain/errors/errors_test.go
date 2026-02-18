@@ -95,6 +95,74 @@ func TestIsRetryable(t *testing.T) {
 	}
 }
 
+func TestParseTPErrorBody(t *testing.T) {
+	tests := []struct {
+		name     string
+		body     string
+		expected string
+	}{
+		{
+			name:     "extracts message from XML error",
+			body:     `<Error><Status>BadRequest</Status><Message>Error during parameters parsing.</Message><Type>Presentational</Type></Error>`,
+			expected: "Error during parameters parsing.",
+		},
+		{
+			name:     "extracts message from multiline XML",
+			body:     "<Error>\n<Status>BadRequest</Status>\n<Message>Invalid field name 'Foo'.</Message>\n</Error>",
+			expected: "Invalid field name 'Foo'.",
+		},
+		{
+			name:     "returns body as-is when no XML message found",
+			body:     "some plain text error",
+			expected: "some plain text error",
+		},
+		{
+			name:     "returns body as-is for JSON errors",
+			body:     `{"error": "something went wrong"}`,
+			expected: `{"error": "something went wrong"}`,
+		},
+		{
+			name:     "returns empty response message for empty body",
+			body:     "",
+			expected: "empty response",
+		},
+		{
+			name:     "trims whitespace from non-XML body",
+			body:     "  some error  \n",
+			expected: "some error",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := ParseTPErrorBody(tt.body)
+			if result != tt.expected {
+				t.Errorf("expected %q, got %q", tt.expected, result)
+			}
+		})
+	}
+}
+
+func TestAPIErrorWithRawBody(t *testing.T) {
+	err := &APIError{
+		StatusCode: 400,
+		Message:    "Error during parameters parsing.",
+		RawBody:    `<Error><Status>BadRequest</Status><Message>Error during parameters parsing.</Message></Error>`,
+		Context:    "GET https://example.com/api/v1/Requests?where=...",
+	}
+
+	// Error() should use the clean message, not the raw XML
+	expected := "API error 400: Error during parameters parsing. (context: GET https://example.com/api/v1/Requests?where=...)"
+	if err.Error() != expected {
+		t.Errorf("expected %q, got %q", expected, err.Error())
+	}
+
+	// RawBody should be preserved
+	if err.RawBody == "" {
+		t.Error("expected RawBody to be set")
+	}
+}
+
 func TestMaskToken(t *testing.T) {
 	tests := []struct {
 		name     string

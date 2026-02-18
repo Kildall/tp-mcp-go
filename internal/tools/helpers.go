@@ -2,7 +2,11 @@ package tools
 
 import (
 	"encoding/json"
+	stderrors "errors"
 	"fmt"
+	"strings"
+
+	"tp-mcp-go/internal/domain/errors"
 
 	"github.com/strowk/foxy-contexts/pkg/mcp"
 )
@@ -12,14 +16,57 @@ func ptr[T any](v T) *T {
 	return &v
 }
 
-// errorResult creates an error CallToolResult
+// errorResult creates an error CallToolResult with actionable messages for API errors
 func errorResult(err error) *mcp.CallToolResult {
+	var apiErr *errors.APIError
+	if stderrors.As(err, &apiErr) {
+		return apiErrorResult(apiErr)
+	}
+
 	isErr := true
 	return &mcp.CallToolResult{
 		Content: []interface{}{
 			mcp.TextContent{
 				Type: "text",
 				Text: fmt.Sprintf("Error: %s", err.Error()),
+			},
+		},
+		IsError: &isErr,
+	}
+}
+
+// apiErrorResult formats an APIError with actionable hints
+func apiErrorResult(apiErr *errors.APIError) *mcp.CallToolResult {
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("TP API Error (HTTP %d): %s", apiErr.StatusCode, apiErr.Message))
+
+	switch {
+	case apiErr.StatusCode == 400:
+		sb.WriteString("\n\nThis usually means the query syntax is invalid. Common issues:")
+		sb.WriteString("\n- Boolean values must NOT be quoted: use 'IsFinal eq true' not 'IsFinal eq \"true\"'")
+		sb.WriteString("\n- String values must be single-quoted: EntityState.Name eq 'Open'")
+		sb.WriteString("\n- Verify field names are valid for this entity type (use inspect_object tool)")
+		sb.WriteString("\n- Collection queries use .Any() syntax: Assignments.Any(GeneralUser.Id eq 123)")
+	case apiErr.StatusCode == 401:
+		sb.WriteString("\n\nAuthentication failed. The access token may be invalid or expired.")
+	case apiErr.StatusCode == 403:
+		sb.WriteString("\n\nPermission denied. The current user may not have access to this resource.")
+	case apiErr.StatusCode == 404:
+		sb.WriteString("\n\nEntity not found. Verify the entity type and ID are correct.")
+	case apiErr.StatusCode >= 500:
+		sb.WriteString("\n\nServer error on the TP side. This is usually temporary — try the request again.")
+	}
+
+	if apiErr.Context != "" {
+		sb.WriteString(fmt.Sprintf("\n\nRequest: %s", apiErr.Context))
+	}
+
+	isErr := true
+	return &mcp.CallToolResult{
+		Content: []interface{}{
+			mcp.TextContent{
+				Type: "text",
+				Text: sb.String(),
 			},
 		},
 		IsError: &isErr,

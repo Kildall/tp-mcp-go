@@ -86,10 +86,12 @@ func (c *httpClient) doRequest(ctx context.Context, method, url string, body any
 		}
 
 		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+			maskedBody := errors.MaskToken(string(respBody), c.token)
 			return nil, &errors.APIError{
 				StatusCode: resp.StatusCode,
-				Message:    errors.MaskToken(string(respBody), c.token),
-				Context:    fmt.Sprintf("%s %s", method, url),
+				Message:    errors.ParseTPErrorBody(maskedBody),
+				RawBody:    maskedBody,
+				Context:    fmt.Sprintf("%s %s", method, errors.MaskToken(url, c.token)),
 			}
 		}
 
