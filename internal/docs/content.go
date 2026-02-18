@@ -405,6 +405,16 @@ Description contains 'critical'
 
 Case-insensitive comparison is automatic for string equality.
 
+## Membership Test (in)
+
+Match against multiple values:
+
+Id in (155,156,157)
+EntityState.Name in ('Open','In Progress','Planned')
+Priority.Name in ('High','Urgent')
+
+The 'in' operator is more reliable than chaining multiple 'or' conditions.
+
 ## Numeric Comparisons
 
 Effort gt 8
