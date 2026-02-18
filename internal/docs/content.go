@@ -63,6 +63,10 @@ Search for entities across 17 entity types with flexible filtering.
 - skip (optional): integer - Number of results to skip (default: 0)
 - orderByField (optional): string - Field name to sort by (e.g., "CreateDate", "Name", "Priority.Id"). Only single-field sorting is supported.
 - orderByDirection (optional): enum - Sort direction: "asc" or "desc" (defaults to "asc")
+- assignedUser (optional): string or number - Filter by assigned user; pass an email string (maps to AssignedUser.Email) or a numeric user ID (maps to AssignedUser.Id)
+- project (optional): string or number - Filter by project name (string) or project ID (number)
+- team (optional): string or number - Filter by team name (string) or team ID (number)
+- feature (optional): string or number - Filter by feature name (string) or feature ID (number)
 - include (optional): array - Related entities to include (e.g., ["AssignedUser", "EntityState"])
 
 **Example:**
@@ -590,6 +594,13 @@ Note: The TP API v1 supports single-field sorting only. Use orderByField for the
 search(
   entity_type="UserStory",
   where="AssignedUser.Email eq 'myemail@company.com' and EntityState.IsFinal eq false"
+)
+
+### Find work assigned to a user by ID (structured filter)
+
+search(
+  entity_type="UserStory",
+  assignedUser=123
 )
 
 ### Find items by project
