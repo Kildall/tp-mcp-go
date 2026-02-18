@@ -292,6 +292,17 @@ search(
   take=50
 )
 
+## Search with Multiple Status Values
+
+Find stories in any active status:
+
+search(
+  entity_type="UserStory",
+  where="EntityState.Name in ('Open','In Progress','Code Review') and Project.Id eq 100",
+  take=50,
+  include=["AssignedUser", "EntityState"]
+)
+
 ## Update Multiple Fields
 
 Update both status and assignee:
@@ -593,7 +604,24 @@ Note: The TP API v1 supports single-field sorting only. Use orderByField for the
 
 search(
   entity_type="UserStory",
-  where="AssignedUser.Email eq 'myemail@company.com' and EntityState.IsFinal eq false"
+  where="AssignedUser.Email eq 'myemail@company.com' and EntityState.IsFinal eq 'false'"
+)
+
+### Find all non-final (active) items
+
+search(
+  entity_type="UserStory",
+  where="EntityState.IsFinal eq 'false'",
+  take=100
+)
+
+### Find items in specific statuses
+
+search(
+  entity_type="Bug",
+  where="EntityState.Name in ('Open','In Progress','Code Review')",
+  take=100,
+  include=["AssignedUser", "EntityState"]
 )
 
 ### Find work assigned to a user by ID (structured filter)
