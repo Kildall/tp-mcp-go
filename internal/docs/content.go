@@ -572,20 +572,16 @@ search(entity_type="Task", take=50, skip=100)
 
 ## Sorting
 
-Sort results with order_by:
+Sort results with orderByField and orderByDirection:
 
 search(
   entity_type="Bug",
-  order_by="CreateDate desc",
+  orderByField="CreateDate",
+  orderByDirection="desc",
   take=25
 )
 
-Sort by multiple fields:
-
-search(
-  entity_type="UserStory",
-  order_by="Priority.Id asc, CreateDate desc"
-)
+Note: The TP API v1 supports single-field sorting only. Use orderByField for the field name and orderByDirection for asc/desc.
 
 ## Common Search Patterns
 
@@ -609,7 +605,8 @@ search(
 search(
   entity_type="Task",
   where="CreateDate gt '2026-02-01'",
-  order_by="CreateDate desc"
+  orderByField="CreateDate",
+  orderByDirection="desc"
 )
 
 ### Complex filters
@@ -618,7 +615,8 @@ search(
   entity_type="UserStory",
   where="Project.Id eq 100 and EntityState.Name eq 'Open' and Priority.Name eq 'High'",
   include=["AssignedUser", "Feature"],
-  order_by="Priority.Id asc"
+  orderByField="Priority.Id",
+  orderByDirection="asc"
 )
 
 ## Response Format
