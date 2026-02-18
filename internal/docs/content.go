@@ -61,7 +61,8 @@ Search for entities across 17 entity types with flexible filtering.
 - where (optional): string - WHERE clause for filtering (e.g., "EntityState.Name eq 'Open'")
 - take (optional): integer - Number of results to return (default: 25, max: 1000)
 - skip (optional): integer - Number of results to skip (default: 0)
-- order_by (optional): string - Field to sort by (e.g., "CreateDate desc")
+- orderByField (optional): string - Field name to sort by (e.g., "CreateDate", "Name", "Priority.Id"). Only single-field sorting is supported.
+- orderByDirection (optional): enum - Sort direction: "asc" or "desc" (defaults to "asc")
 - include (optional): array - Related entities to include (e.g., ["AssignedUser", "EntityState"])
 
 **Example:**
