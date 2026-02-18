@@ -1301,11 +1301,12 @@ search(
 
 ## Pagination with Sorting
 
-Combine with order_by for consistent pagination:
+Combine with orderByField/orderByDirection for consistent pagination:
 
 search(
   entity_type="UserStory",
-  order_by="CreateDate desc",
+  orderByField="CreateDate",
+  orderByDirection="desc",
   take=50,
   skip=0
 )
