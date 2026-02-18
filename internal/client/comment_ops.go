@@ -34,7 +34,7 @@ func (c *httpClient) ListComments(ctx context.Context, entityID int, take int, i
 		include = []string{"Description", "CreateDate", "Owner"}
 	}
 
-	url := fmt.Sprintf("%s/Comments?where=General.Id eq %d&take=%d&include=[%s]&orderBy=CreateDate desc",
+	url := fmt.Sprintf("%s/Comments?where=General.Id eq %d&take=%d&include=[%s]&orderByDesc=CreateDate",
 		c.baseURL, entityID, take, strings.Join(include, ","))
 
 	data, err := c.doGet(ctx, url)

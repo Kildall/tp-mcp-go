@@ -96,12 +96,14 @@ func NewSearchTool(c client.Client) fxctx.Tool {
 						"minimum":     1,
 						"maximum":     1000,
 					},
-					"orderBy": {
-						"type":        "array",
-						"description": "Fields to order results by (e.g., [CreateDate desc, Name])",
-						"items": map[string]interface{}{
-							"type": "string",
-						},
+					"orderByField": {
+						"type":        "string",
+						"description": "Field to sort results by (e.g., 'CreateDate', 'Name', 'Priority.Id'). Only one sort field is supported per request.",
+					},
+					"orderByDirection": {
+						"type":        "string",
+						"description": "Sort direction: 'asc' for ascending (default), 'desc' for descending.",
+						"enum":        []interface{}{"asc", "desc"},
 					},
 					"cursor": {
 						"type":        "string",
@@ -164,7 +166,15 @@ func NewSearchTool(c client.Client) fxctx.Tool {
 				// Parse optional params
 				req.RawWhere = getStringArg(args, "where")
 				req.Include = getStringSliceArg(args, "include")
-				req.OrderBy = getStringSliceArg(args, "orderBy")
+				orderByField := getStringArg(args, "orderByField")
+				orderByDirection := getStringArg(args, "orderByDirection")
+				if orderByDirection != "" && orderByField == "" {
+					return errorResult(fmt.Errorf("orderByDirection requires orderByField to be set"))
+				}
+				if orderByField != "" {
+					req.OrderByField = orderByField
+					req.OrderByDesc = orderByDirection == "desc"
+				}
 			}
 
 			// Call client

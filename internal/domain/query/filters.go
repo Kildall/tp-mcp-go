@@ -19,9 +19,10 @@ type SearchRequest struct {
 	Filters    SearchFilters
 	RawWhere   string
 	Include    []string
-	Take       int
-	OrderBy    []string
-	Cursor     string
+	Take         int
+	OrderByField string
+	OrderByDesc  bool
+	Cursor       string
 }
 
 type PaginatedResponse struct {

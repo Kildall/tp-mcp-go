@@ -45,8 +45,12 @@ func (c *httpClient) SearchEntities(ctx context.Context, req query.SearchRequest
 	}
 
 	// OrderBy
-	if len(req.OrderBy) > 0 {
-		params.Set("orderBy", strings.Join(req.OrderBy, ","))
+	if req.OrderByField != "" {
+		if req.OrderByDesc {
+			params.Set("orderByDesc", req.OrderByField)
+		} else {
+			params.Set("orderBy", req.OrderByField)
+		}
 	}
 
 	fullURL := baseURL
