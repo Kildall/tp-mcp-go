@@ -331,6 +331,11 @@ The search tool supports powerful filtering using WHERE clauses with OData synta
 - ge: Greater than or equal
 - lt: Less than
 - le: Less than or equal
+- in: Membership test (works with numbers and strings)
+- contains: Substring match (case-insensitive)
+- not contains: Excludes substring
+- is null: Field is empty/unset
+- is not null: Field has a value
 
 ### Examples
 
@@ -379,8 +384,17 @@ Access related entity properties using dot notation:
 
 AssignedUser.Email eq 'user@example.com'
 Project.Name eq 'Mobile App'
-EntityState.IsFinal eq false
+EntityState.IsFinal eq 'false'
 Team.Name eq 'Backend Team'
+
+## Boolean Fields
+
+Boolean values in the TP API must be quoted as strings:
+
+EntityState.IsFinal eq 'false'
+EntityState.IsFinal eq 'true'
+
+IMPORTANT: Unquoted boolean values (e.g., IsFinal eq false) will cause a 400 error.
 
 ## String Operations
 
