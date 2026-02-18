@@ -449,13 +449,45 @@ For advanced scenarios, you can pass raw WHERE clause strings directly to the AP
 
 This allows you to use any Target Process API filter syntax, including functions and operators not explicitly documented here.
 
+## Common Gotchas
+
+### Boolean values must be quoted
+Boolean fields like IsFinal require single-quoted string values:
+- CORRECT: EntityState.IsFinal eq 'false'
+- WRONG: EntityState.IsFinal eq false (causes 400 error)
+
+### Parentheses are limited
+Parentheses around 'or' conditions cause 400 errors:
+- FAILS: (EntityState.Name eq 'Open' or EntityState.Name eq 'Planned') and Project.Id eq 100
+- WORKS: EntityState.Name in ('Open','Planned') and Project.Id eq 100
+
+For 'and' conditions, use no-space parentheses syntax:
+- WORKS: (EntityState.Name eq 'Open')and(Project.Id eq 100)
+
+### Prefer 'in' over 'or' for multiple values
+The 'in' operator is more reliable and concise:
+- BETTER: Priority.Name in ('High','Urgent')
+- FRAGILE: Priority.Name eq 'High' or Priority.Name eq 'Urgent'
+
+### String values require single quotes
+All string and date values must be wrapped in single quotes:
+- CORRECT: EntityState.Name eq 'Open'
+- WRONG: EntityState.Name eq Open (causes 400 error)
+
+Numeric values must NOT be quoted:
+- CORRECT: Id eq 123
+- WRONG: Id eq '123'
+
 ## Tips
 
-- Always quote string values: Name eq 'value'
-- Use ISO date format: YYYY-MM-DD
-- Navigate relationships with dots: AssignedUser.Email
-- Combine conditions with 'and'/'or'
-- Use parentheses for precedence: (A or B) and C
+- Always quote string and boolean values with single quotes: Name eq 'value', IsFinal eq 'false'
+- Do NOT quote numeric values: Id eq 123, Effort gt 5
+- Use ISO date format in single quotes: CreateDate gt '2026-01-01'
+- Navigate relationships with dots: AssignedUser.Email, EntityState.IsFinal
+- Use 'in' for matching multiple values: Name in ('a','b','c')
+- Combine conditions with 'and' (parentheses-free when possible)
+- Use 'or' only for flat conditions without parentheses
+- Use 'is null' / 'is not null' for empty field checks
 `
 
 const Authentication = `# Authentication
