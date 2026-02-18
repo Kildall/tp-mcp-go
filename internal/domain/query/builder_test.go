@@ -207,6 +207,53 @@ func TestBuildWhereClause_SingleQuoteEscaping(t *testing.T) {
 	}
 }
 
+func TestBuildWhereClause_AssignedUserByEmail(t *testing.T) {
+	filters := SearchFilters{
+		AssignedUser: "user@example.com",
+	}
+	result := BuildWhereClause(filters, "")
+
+	expected := "AssignedUser.Email eq 'user@example.com'"
+	if result != expected {
+		t.Errorf("Expected %q, got %q", expected, result)
+	}
+}
+
+func TestBuildWhereClause_AssignedUserByID_Int(t *testing.T) {
+	filters := SearchFilters{
+		AssignedUser: 789,
+	}
+	result := BuildWhereClause(filters, "")
+
+	expected := "AssignedUser.Id eq 789"
+	if result != expected {
+		t.Errorf("Expected %q, got %q", expected, result)
+	}
+}
+
+func TestBuildWhereClause_AssignedUserByID_Float64(t *testing.T) {
+	filters := SearchFilters{
+		AssignedUser: float64(42),
+	}
+	result := BuildWhereClause(filters, "")
+
+	expected := "AssignedUser.Id eq 42"
+	if result != expected {
+		t.Errorf("Expected %q, got %q", expected, result)
+	}
+}
+
+func TestBuildWhereClause_AssignedUserEmptyString(t *testing.T) {
+	filters := SearchFilters{
+		AssignedUser: "",
+	}
+	result := BuildWhereClause(filters, "")
+
+	if result != "" {
+		t.Errorf("Expected empty string, got %q", result)
+	}
+}
+
 func TestBuildWhereClause_ComplexCombination(t *testing.T) {
 	filters := SearchFilters{
 		Status:       "In Progress",
