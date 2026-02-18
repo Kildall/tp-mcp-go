@@ -272,7 +272,8 @@ Find the 25 most recently created tasks:
 
 search(
   entity_type="Task",
-  order_by="CreateDate desc",
+  orderByField="CreateDate",
+  orderByDirection="desc",
   take=25,
   include=["AssignedUser", "EntityState"]
 )
